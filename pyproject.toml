@@ -1,7 +1,7 @@
 [project]
 name = "NoApi"
 version = "0.1"
-description = "Use a part of your program remotely without making an api"
+description = "Use a part of your program remotely without making an api (in beta)"
 readme = "README.md"
 
 dependencies = [
