@@ -1,6 +1,6 @@
 [project]
 name = "NoApi"
-version = "0.1"
+version = "0.1.1"
 description = "Use a part of your program remotely without making an api (in beta)"
 readme = "README.md"
 
@@ -15,7 +15,7 @@ classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
-    "Development Status :: Alpha"
+    "Development Status :: 3 - Alpha"
 ]
 
 license = {text="MIT License"}
