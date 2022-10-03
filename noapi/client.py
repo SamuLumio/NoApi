@@ -24,6 +24,9 @@ class RemoteObject:
 			return self.___client___.___call_server___('get', 'getattr', id=self.___id___, attribute=name)
 
 
+	# TODO also set attribute
+
+
 	def __call__(self, *args, **kwargs):
 		args = [models.Arg.generate(a) for a in args]
 		kwargs = {key: models.Arg.generate(a) for (key, a) in kwargs.items()}

@@ -52,7 +52,7 @@ class Server:
 			return _object_info(result)
 
 	def start(self):
-		uvicorn.run(self.fastapi, port=self.port)
+		uvicorn.run(self.fastapi, host='0.0.0.0', port=self.port)
 
 	def start_in_thread(self):
 		threading.Thread(target=self.start, daemon=True).start()
