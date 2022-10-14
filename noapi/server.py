@@ -1,9 +1,9 @@
-import fastapi, uvicorn, threading
+import fastapi, uvicorn, threading, types
 from . import models
 
 
 
-basic_types = {str, int, float, bool, None}
+basic_types = {str, int, float, bool, None, types.NoneType}
 """Basic immutable types that can be sent as-is over the network"""
 
 requested_objects = {}
