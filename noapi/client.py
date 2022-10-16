@@ -18,6 +18,7 @@ class RemoteObject:
 
 
 	def __getattribute__(self, name: str):
+		methods = {}
 		if name.startswith('___') and name.endswith('___') or name in {'__call__', '__init__', '__iter__'}:
 			return object.__getattribute__(self, name)
 		else:
@@ -37,6 +38,9 @@ class RemoteObject:
 	def __iter__(self):
 		list = self.___client___.___call_server___('get', 'iterate', id=self.___id___)
 		return list.__iter__()
+
+	def __getitem__(self, item):
+		return self.__getitem__(item)
 
 
 
