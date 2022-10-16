@@ -32,6 +32,6 @@ So you can use your remotely running backend just the same as if it was an impor
 Don't use this yet tho
 ----------------------
 
-This library is still in active development and not polished, documented, or secure in the slightest. I'm testing how well it works by using in another project I'm working on, and it's public in this phase only so that It's on PyPi and can easily be used with the other project.
+This library is still in active development and not polished, documented, or secure in the slightest. I'm testing how well it works by using it in another project I'm working on, and it's public in this phase only so that It's on PyPi and can easily be used with the other project.
 
 So, use at your own risk!
