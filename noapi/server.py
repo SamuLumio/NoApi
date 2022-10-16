@@ -42,6 +42,14 @@ class Server:
 				raise fastapi.HTTPException(404, str(e))
 			return _object_info(object)
 
+		@self.fastapi.get('/iterate')
+		def iterate_object(id: int):
+			try:
+				object = requested_objects[id]
+			except KeyError as e:
+				raise fastapi.HTTPException(404, str(e))
+			return [_object_info(i) for i in object]
+
 		@self.fastapi.post('/call')
 		def call_object(id: int, params: models.CallParameters):
 			try:

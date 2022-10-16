@@ -18,7 +18,7 @@ class RemoteObject:
 
 
 	def __getattribute__(self, name: str):
-		if name.startswith('___') and name.endswith('___') or name in {'__call__', '__init__'}:
+		if name.startswith('___') and name.endswith('___') or name in {'__call__', '__init__', '__iter__'}:
 			return object.__getattribute__(self, name)
 		else:
 			return self.___client___.___call_server___('get', 'getattr', id=self.___id___, attribute=name)
@@ -33,6 +33,10 @@ class RemoteObject:
 		return self.___client___.___call_server___('post', 'call', id=self.___id___,
 		                                           data=models.CallParameters(args=args, kwargs=kwargs).dict())
 
+
+	def __iter__(self):
+		list = self.___client___.___call_server___('get', 'iterate', id=self.___id___)
+		return list.__iter__()
 
 
 
@@ -59,14 +63,22 @@ class Client(RemoteObject):
 		method = getattr(self.___session___, method)
 		url = f'{self.___server_address___}/{function}'
 		response = method(url, json=data, params=params)
+		json = response.json()
 
 		match response.status_code:
 			case 200:
-				object = models.ObjectInfo.construct(None, **response.json())
-				if object.basic:
-					return object.value
+				def parse(json):
+					object = models.ObjectInfo.construct(None, **json)
+					if object.basic:
+						return object.value
+					else:
+						return RemoteObject(object.id, self)
+
+				if isinstance(json, list):
+					return [parse(i) for i in json]
 				else:
-					return RemoteObject(object.id, self)
+					return parse(json)
+
 			case 404:
 				raise ObjectNotFoundError(response)
 			case _:
