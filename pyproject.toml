@@ -1,6 +1,6 @@
 [project]
 name = "NoApi"
-version = "0.2.0"
+version = "0.2.1"
 description = "Use a part of your program remotely without making an api (in beta)"
 readme = "README.md"
 

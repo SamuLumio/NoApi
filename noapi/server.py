@@ -59,11 +59,15 @@ class Server:
 			result = params.use_on(object)
 			return _object_info(result)
 
-	def start(self):
-		uvicorn.run(self.fastapi, host='0.0.0.0', port=self.port)
+	def start(self, log=False):
+		if log:
+			log_level = None
+		else:
+			log_level = 'critical'
+		uvicorn.run(self.fastapi, host='0.0.0.0', port=self.port, log_level=log_level)
 
-	def start_in_thread(self):
-		threading.Thread(target=self.start, daemon=True).start()
+	def start_in_thread(self, log=False):
+		threading.Thread(target=self.start, kwargs={'log': log}, daemon=True).start()
 
 
 
