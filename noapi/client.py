@@ -1,4 +1,4 @@
-import requests
+import requests, inspect
 from . import models
 
 
@@ -49,9 +49,14 @@ class RemoteObject:
 
 	@property
 	def __class__(self):
+		caller = inspect.stack()[2].frame
 		remote_class = self.__getattribute__('__class__', force_remote=True)
 		try:
-			return eval(remote_class.__name__)
+			module = remote_class.__module__
+			classname = remote_class.__qualname__
+			if module not in {'builtins', '__builtin__'}:
+				classname = module + '.' + classname
+			return eval(classname, caller.f_globals, caller.f_locals)
 		except:
 			return remote_class
 
