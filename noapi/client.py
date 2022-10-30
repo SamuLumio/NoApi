@@ -17,12 +17,17 @@ class RemoteObject:
 		self.___client___ = client
 
 
-	def __getattribute__(self, name: str):
-		methods = {}
-		if name.startswith('___') and name.endswith('___') or name in {'__call__', '__init__', '__iter__'}:
+	def __getattribute__(self, name: str, force_remote=False):
+		def get_from_server():
+			return self.___client___.___call_server___('get', 'getattr', id=self.___id___, attribute=name)
+		if force_remote:
+			return get_from_server()
+		elif name.startswith('___') and name.endswith('___') or \
+		   name in {'__getattribute__', '__call__', '__init__', '__iter__', '__class__'}:
 			return object.__getattribute__(self, name)
 		else:
-			return self.___client___.___call_server___('get', 'getattr', id=self.___id___, attribute=name)
+			return get_from_server()
+
 
 
 	# TODO also set attribute
@@ -41,6 +46,15 @@ class RemoteObject:
 
 	def __getitem__(self, item):
 		return self.__getitem__(item)
+
+	@property
+	def __class__(self):
+		remote_class = self.__getattribute__('__class__', force_remote=True)
+		try:
+			return eval(remote_class.__name__)
+		except:
+			return remote_class
+
 
 
 
