@@ -2,6 +2,8 @@ import requests, inspect
 from . import models
 
 
+custom_dunders = {'__getattribute__', '__setattr__', '__call__', '__init__', '__iter__', '__class__'}
+
 
 # noinspection PyProtectedMember
 class RemoteObject:
@@ -22,15 +24,17 @@ class RemoteObject:
 			return self.___client___.___call_server___('get', 'getattr', id=self.___id___, attribute=name)
 		if force_remote:
 			return get_from_server()
-		elif name.startswith('___') and name.endswith('___') or \
-		   name in {'__getattribute__', '__call__', '__init__', '__iter__', '__class__'}:
+		elif name.startswith('___') and name.endswith('___') or name in custom_dunders:
 			return object.__getattribute__(self, name)
 		else:
 			return get_from_server()
 
-
-
-	# TODO also set attribute
+	# def __setattr__(self, key, value, force_local=False):
+	# 	if force_local or (key.startswith('___') and key.endswith('___')):
+	# 		super().__setattr__(key, value)
+	# 	else:
+	#
+	# # TODO also set attribute
 
 
 	def __call__(self, *args, **kwargs):
@@ -44,8 +48,6 @@ class RemoteObject:
 		list = self.___client___.___call_server___('get', 'iterate', id=self.___id___)
 		return list.__iter__()
 
-	def __getitem__(self, item):
-		return self.__getitem__(item)
 
 	@property
 	def __class__(self):
@@ -59,6 +61,36 @@ class RemoteObject:
 			return eval(classname, caller.f_globals, caller.f_locals)
 		except:
 			return remote_class
+
+
+
+
+
+magic_methods = {
+	'abs', 'add', 'and', 'bool', 'ceil', 'cmp', 'complex', 'contains', 'divmod', 'eq', 'float', 'floor', 'floordiv', 'format', 'ge', 'getitem',
+	'getslice', 'gt', 'hash', 'index', 'int', 'invert', 'iter', 'le', 'len', 'lshift', 'lt', 'matmul', 'mod', 'mul', 'ne', 'neg', 'next', 'nonzero',
+	'or', 'pos', 'pow', 'radd', 'rand', 'rdiv', 'rdivmod', 'reversed', 'rfloordiv', 'rlshift', 'rmatmul', 'rmod', 'rmul', 'ror', 'round', 'rpow',
+	'rrshift', 'rshift', 'rsub', 'rtruediv', 'rxor', 'sub', 'truediv', 'trunc', 'xor',
+	'delattr', 'delitem', 'delslice', 'enter', 'exit', 'iadd', 'iand', 'ifloordiv', 'ilshift', 'imatmul', 'imod', 'imul', 'ior', 'ipow', 'irshift',
+	'isub', 'itruediv', 'ixor', 'missing', 'setattr', 'setitem', 'setslice'
+}
+
+
+for dunder in magic_methods:
+	dunder = f'__{dunder}__'
+
+	if dunder not in custom_dunders:
+
+		def make_function(dunder):
+
+			def function(self, *args, **kwargs):
+				print(dunder)
+				return getattr(self, dunder)(*args, **kwargs)
+
+			return function
+
+		setattr(RemoteObject, dunder, make_function(dunder))
+
 
 
 
