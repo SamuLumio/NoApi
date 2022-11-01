@@ -42,6 +42,13 @@ class Server:
 				raise fastapi.HTTPException(404, str(e))
 			return _object_info(object)
 
+		@self.fastapi.post('/setattr')
+		def set_object_attr(id: int, attribute: str, value: models.Value):
+			try:
+				setattr(requested_objects[id], attribute, value.parse())
+			except AttributeError as e:
+				raise fastapi.HTTPException(404, str(e))
+
 		@self.fastapi.get('/iterate')
 		def iterate_object(id: int):
 			try:

@@ -11,7 +11,7 @@ class ObjectInfo(pydantic.BaseModel):
 
 
 
-class Arg(pydantic.BaseModel):
+class Value(pydantic.BaseModel):
 
 	value: typing.Any
 	remote_object: bool = False
@@ -33,8 +33,8 @@ class Arg(pydantic.BaseModel):
 
 class CallParameters(pydantic.BaseModel):
 
-	args: list[Arg]
-	kwargs: dict[str, Arg]
+	args: list[Value]
+	kwargs: dict[str, Value]
 
 	def use_on(self, object):
 		args = [a.parse() for a in self.args]

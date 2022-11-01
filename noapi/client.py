@@ -19,9 +19,14 @@ class RemoteObject:
 		self.___client___ = client
 
 
+	def ___call_server___(self, method: str, function: str, data=None, **params):
+		return self.___client___.___call_server___(method, function, data, **params)
+		# Shortcut
+
+
 	def __getattribute__(self, name: str, force_remote=False):
 		def get_from_server():
-			return self.___client___.___call_server___('get', 'getattr', id=self.___id___, attribute=name)
+			return self.___call_server___('get', 'getattr', id=self.___id___, attribute=name)
 		if force_remote:
 			return get_from_server()
 		elif name.startswith('___') and name.endswith('___') or name in custom_dunders:
@@ -29,23 +34,24 @@ class RemoteObject:
 		else:
 			return get_from_server()
 
-	# def __setattr__(self, key, value, force_local=False):
-	# 	if force_local or (key.startswith('___') and key.endswith('___')):
-	# 		super().__setattr__(key, value)
-	# 	else:
-	#
-	# # TODO also set attribute
+	def __setattr__(self, key, value, force_local=False):
+		if force_local or (key.startswith('___') and key.endswith('___')):
+			super().__setattr__(key, value)
+		else:
+			value = models.Value.generate(value)
+			self.___call_server___('post', 'setattr', id=self.___id___, attribute=key, data=value.dict())
+
 
 
 	def __call__(self, *args, **kwargs):
-		args = [models.Arg.generate(a) for a in args]
-		kwargs = {key: models.Arg.generate(a) for (key, a) in kwargs.items()}
-		return self.___client___.___call_server___('post', 'call', id=self.___id___,
+		args = [models.Value.generate(a) for a in args]
+		kwargs = {key: models.Value.generate(a) for (key, a) in kwargs.items()}
+		return self.___call_server___('post', 'call', id=self.___id___,
 		                                           data=models.CallParameters(args=args, kwargs=kwargs).dict())
 
 
 	def __iter__(self):
-		list = self.___client___.___call_server___('get', 'iterate', id=self.___id___)
+		list = self.___call_server___('get', 'iterate', id=self.___id___)
 		return list.__iter__()
 
 
@@ -84,7 +90,6 @@ for dunder in magic_methods:
 		def make_function(dunder):
 
 			def function(self, *args, **kwargs):
-				print(dunder)
 				return getattr(self, dunder)(*args, **kwargs)
 
 			return function
@@ -131,7 +136,7 @@ class Client(RemoteObject):
 
 				if isinstance(json, list):
 					return [parse(i) for i in json]
-				else:
+				elif isinstance(json, dict):
 					return parse(json)
 
 			case 404:
