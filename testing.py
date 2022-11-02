@@ -10,7 +10,9 @@ test_list = ["yo", "mama", c]
 settings.setup('test')
 test_setting = settings.Multichoice('multichoice', ["1", "2", "3"], ["2"])
 
-print(c.test_setting)
+print(test_setting)
+c.test_setting.value = ["2"]
+print(test_setting)
 
 # window = tkinter.Tk()
 # settings_gui.tkinter.section_frames.SectionFrame(window, c.settings.base.default_section).pack()
