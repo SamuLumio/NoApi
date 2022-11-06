@@ -26,6 +26,11 @@ class Server:
 		def hello():
 			return "Hello!"
 
+		@self.fastapi.exception_handler(Exception)
+		async def validation_exception_handler(request, err: Exception):
+			return fastapi.responses.JSONResponse(status_code=500,
+												  content={'detail': f"{err.__class__.__name__}: {err}"})
+
 		object_controller.generate_functions(self.fastapi, namespace)
 
 
@@ -33,7 +38,7 @@ class Server:
 		if log:
 			log_level = None
 		else:
-			log_level = 'critical'
+			log_level = 'warning'
 		uvicorn.run(self.fastapi, host='0.0.0.0', port=self.port, log_level=log_level)
 
 	def start_in_thread(self, log=False):

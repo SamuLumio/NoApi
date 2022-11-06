@@ -30,6 +30,8 @@ class BaseConnection:
 				return json
 			case 404:
 				raise ObjectNotFoundError(response)
+			case 500:
+				raise ServerError(response)
 			case _:
 				raise InternalNoApiError(response)
 
@@ -65,18 +67,22 @@ class Connection(BaseConnection):
 
 
 
-class ServerError(BaseException):
+class _NoApiError(BaseException):
 	message: str
 
 	def __init__(self, server_response: requests.Response):
-		super().__init__(f"{self.message} (message: {server_response.json()['detail']})")
+		super().__init__(f"{self.message} ({server_response.json()['detail']})")
 
 
-class ObjectNotFoundError(ServerError):
+class ObjectNotFoundError(_NoApiError):
 	message = "object not found on server"
 
 
-class InternalNoApiError(ServerError):
+class ServerError(_NoApiError):
+	message = "error occured on server"
+
+
+class InternalNoApiError(_NoApiError):
 	def __init__(self, response: requests.Response):
 		self.message = f"Internal error with NoApi server - {response.status_code}"
 		super().__init__(response)
