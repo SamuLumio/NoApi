@@ -1,9 +1,9 @@
 import inspect
-from . import connector
-from .. import shared
+from .. import connector
+from . import models
 
 
-custom_dunders = {'__getattribute__', '__setattr__', '__call__', '__init__', '__iter__', '__class__'}
+custom_dunders = {'__new__', '__init__', '__getattribute__', '__setattr__', '__call__', '__iter__', '__class__'}
 
 
 class RemoteObject:
@@ -19,8 +19,11 @@ class RemoteObject:
 		self.___connection___: connector.Connection = connection
 
 	def ___call_server___(self, method: str, function: str, data=None, **params):
-		return self.___connection___.call_server(method, function, data, id=self.___id___, **params)
-		# Shortcut
+		json = self.___connection___.call_server(method, function, data, id=self.___id___, **params)
+		if isinstance(json, dict):
+			return models.parse(json, self.___connection___)
+		elif isinstance(json, list):
+			return [models.parse(i, self.___connection___) for i in json]
 
 
 	def __getattribute__(self, name: str, force_remote=False):
@@ -38,14 +41,13 @@ class RemoteObject:
 		if force_local or (key.startswith('___') and key.endswith('___')):
 			super().__setattr__(key, value)
 		else:
-			value = shared.models.Value.generate(value)
-			self.___call_server___('post', 'setattr', attribute=key, data=value.dict())
+			self.___call_server___('post', 'setattr', attribute=key, data=models.generate(value).dict())
 
 
 	def __call__(self, *args, **kwargs):
-		args = [shared.models.Value.generate(a) for a in args]
-		kwargs = {key: shared.models.Value.generate(a) for (key, a) in kwargs.items()}
-		return self.___call_server___('post', 'call', data=shared.models.CallParameters(args=args, kwargs=kwargs).dict())
+		args = [models.generate(a) for a in args]
+		kwargs = {key: models.generate(a) for (key, a) in kwargs.items()}
+		return self.___call_server___('post', 'call', data=models.CallParameters(args=args, kwargs=kwargs).dict())
 
 
 	def __iter__(self):

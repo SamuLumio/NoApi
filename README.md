@@ -9,18 +9,20 @@ With NoApi you can simply use objects and variables that exist on a remote machi
 See what I mean
 ---------------
 
-On the server:
+On one device:
 
     import noapi
-    noapi.Server(port=1234, namespace=__import__(__file__)).start()
+    noapi.Node(1234, namespace=__import__(__file__))
     
     some_object = SomeClass()
 
 
-On the client:
+On another:
 
     import noapi
-    backend = noapi.Client(server_address='whatever ip', port=1234)
+     noapi.Node(port=1234, namespace=__import__(__file__))
+
+    backend = noapi.Remote(1234, 'whatever ip')
     
     print(backend.some_object.foo)
     backend.some_object.bar.some_method('args', 'work', 'too')
