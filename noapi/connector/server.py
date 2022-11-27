@@ -15,8 +15,8 @@ class Server:
 		self.connections: set[Connection] = set()
 
 		@self.fastapi.post('/connect')
-		def add_client(request: fastapi.Request):
-			client = Connection(request.client.host, self.port)
+		def add_client(port: int, request: fastapi.Request):
+			client = Connection(request.client.host, port, self.port)
 			if client not in self.connections:
 				self.connections.add(client)
 				client.connect()

@@ -8,7 +8,7 @@ class Node:
 	NOTE: Currently not secure in the slightest -
 	anyone on the same network can access it just by knowing the port.
 
-	:param port: any unique port for your program (use the same one on all devices)
+	:param port: any unique port for your program
 	:param namespace: The starting point from the client's POV.
 					  Tip: you can use __import__(__name__) if you want the current module.
 	"""
@@ -25,11 +25,10 @@ class Node:
 class Remote:
 	"""
 	Connect and use another device's objects
-
-	:param port: any unique port for your program (use the same one on all devices)
 	"""
-	def __init__(self, port: int, address: str, connect_automatically=True):
-		self.connection = connector.Connection(address, port)
+	def __init__(self, port: int, address: str, local_node: Node, connect_automatically=True):
+		self.local_node = local_node
+		self.connection = connector.Connection(address, port, self.local_node.server.port)
 		self.control_portal: objects.remote.RemoteObject | None = None
 		if connect_automatically:
 			self.connect()

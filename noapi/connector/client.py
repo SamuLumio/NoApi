@@ -4,7 +4,7 @@ import requests, pydantic
 
 
 class Connection:
-	def __init__(self, address: str, port: int):
+	def __init__(self, address: str, remote_port: int, local_port: int):
 		"""
 		Connection to a NoApi server
 
@@ -12,12 +12,14 @@ class Connection:
 		:param port: a unique port for your program (use the same one on server)
 		"""
 		self.short_address = address
-		self.server_address = f"http://{address}:{port}"  # TODO figure out https
+		self.remote_port = remote_port
+		self.local_port = local_port
+		self.server_address = f"http://{address}:{remote_port}"  # TODO figure out https
 		self.session = requests.Session()
 
 
 	def connect(self):
-		self.call_server('post', 'connect')
+		self.call_server('post', 'connect', port=self.local_port)
 
 	# def disconnect  # TODO
 
