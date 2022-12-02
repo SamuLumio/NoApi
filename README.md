@@ -22,7 +22,7 @@ On another:
     import noapi
      noapi.Node(port=1234, namespace=__import__(__file__))
 
-    backend = noapi.Remote(1234, 'whatever ip')
+    backend = noapi.Remote(1234, 'whatever ip').control_portal
     
     print(backend.some_object.foo)
     backend.some_object.bar.some_method('args', 'work', 'too')
