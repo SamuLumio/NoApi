@@ -7,10 +7,16 @@ from . import Connection
 class Server:
 	# TODO implement some security maybe
 
-	def __init__(self, port: int):
+	def __init__(self, port: int, log=False):
 		"""Open this device for connections"""
 		self.port = port
 		self.fastapi = fastapi.FastAPI()
+
+		if log:
+			log_level = None
+		else:
+			log_level = 'warning'
+		self.uvicorn = uvicorn.Server(uvicorn.Config(self.fastapi, host='0.0.0.0', port=self.port, log_level=log_level))
 
 		self.connections: set[Connection] = set()
 
@@ -34,12 +40,11 @@ class Server:
 												  content={'detail': f"{err.__class__.__name__}: {err}"})
 
 
-	def start(self, log=False):
-		if log:
-			log_level = None
-		else:
-			log_level = 'warning'
-		uvicorn.run(self.fastapi, host='0.0.0.0', port=self.port, log_level=log_level)
+	def start(self):
+		uvicorn_thread = threading.Thread(target=self.uvicorn.run, daemon=True)
+		uvicorn_thread.start()
 
-	def start_in_thread(self, log=False):
-		threading.Thread(target=self.start, kwargs={'log': log}, daemon=True).start()
+	def stop(self):
+		self.uvicorn.should_exit = True
+	#	asyncio.run(self.uvicorn.shutdown())
+

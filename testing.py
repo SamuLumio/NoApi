@@ -1,13 +1,13 @@
 import noapi, time, settings, tkinter, settings_gui.tkinter
 
-noapi.Node(1234, __import__(__name__))
+n = noapi.Node(1234, __import__(__name__), log=True)
 time.sleep(0.1)
 
-r = noapi.Remote(1234, 'localhost').control_portal
+r = noapi.Remote(1234, 'localhost', n).control_portal
 
-test_list = ["yo", "mama", r, None]
+list = ["yo", "mama", r, None]
 settings.setup('test')
-test_setting = settings.Toggle('toggle', True)
+setting = settings.Toggle('toggle', True)
 
 string = "sdhdfhbdsth"
 
@@ -15,13 +15,13 @@ string = "sdhdfhbdsth"
 def raise_error():
 	raise AttributeError("yo mama")
 
+r_list = r.list
+r_list.append(1)
 
-# print("Alkaa")
-# r.test_list.append(test_setting)
-# test_setting.set(False)
-# print(test_list[-1].value)
+time.sleep(1)
+n.deactivate()
+time.sleep(0.5)
 
+r_list.append(2)
 
-window = tkinter.Tk()
-settings_gui.tkinter.section_frames.SectionFrame(window, r.settings.base.default_section).pack()
-window.mainloop()
+# Should correctly display that connection was lost

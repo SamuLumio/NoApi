@@ -1,4 +1,4 @@
-import requests, pydantic
+import requests
 
 
 
@@ -27,12 +27,15 @@ class Connection:
 	def call_server(self, method: str, function: str, data=None, **params) -> dict | list:
 		method = getattr(self.session, method)
 		url = f'{self.server_address}/{function}'
-		response = method(url, json=data, params=params)
-		json = response.json()
+
+		try:
+			response = method(url, json=data, params=params)
+		except requests.exceptions.ConnectionError:
+			raise ConnectionError(self.short_address)
 
 		match response.status_code:
 			case 200:
-				return json
+				return response.json()
 			case 403:
 				raise NotConnectedError(response)
 			case 404:
@@ -57,18 +60,6 @@ class Connection:
 
 	def __hash__(self):
 		return hash(self.server_address)
-
-
-
-
-# class Connection(BaseConnection):
-# 	def call_server(self, method: str, function: str, data=None, **params):
-# 		json = super().call_server(method, function, data, **params)
-#
-# 		if isinstance(json, dict):
-# 			return parse(json)
-# 		elif isinstance(json, list):
-# 			return [parse(i) for i in json]
 
 
 
@@ -98,3 +89,10 @@ class InternalNoApiError(_NoApiError):
 	def __init__(self, response: requests.Response):
 		self.message = f"Internal error with NoApi server - {response.status_code}"
 		super().__init__(response)
+
+
+
+
+class ConnectionError(BaseException):
+	def __init__(self, remote_ip: str):
+		super().__init__(f"lost connection to NoApi remote {remote_ip}")

@@ -1,3 +1,5 @@
+import threading
+
 from . import connector, objects
 
 
@@ -12,14 +14,17 @@ class Node:
 	:param namespace: The starting point from the client's POV.
 					  Tip: you can use __import__(__name__) if you want the current module.
 	"""
-	def __init__(self, port: int, namespace, activate_automatically=True):
-		self.server = connector.Server(port)
+	def __init__(self, port: int, namespace, activate_automatically=True, log=False):
+		self.server = connector.Server(port, log)
 		objects.local.generate_functions(self.server.fastapi, namespace, self.server.connections)
 		if activate_automatically:
 			self.activate()
 
-	def activate(self, log=False):
-		self.server.start_in_thread(log)
+	def activate(self):
+		self.server.start()
+
+	def deactivate(self):
+		self.server.stop()
 
 
 class Remote:
