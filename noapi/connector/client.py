@@ -70,7 +70,11 @@ class _NoApiError(BaseException):
 	message: str
 
 	def __init__(self, server_response: requests.Response):
-		super().__init__(f"{self.message} ({server_response.json()['detail']})")
+		try:
+			response = server_response.json()['detail']
+		except:
+			response = server_response.text
+		super().__init__(f"{self.message} ({response})")
 
 
 class NotConnectedError(_NoApiError):
