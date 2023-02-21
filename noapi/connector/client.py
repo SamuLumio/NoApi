@@ -1,4 +1,4 @@
-import requests
+import requests, atexit
 
 
 
@@ -17,11 +17,20 @@ class Connection:
 		self.server_address = f"http://{address}:{remote_port}"  # TODO figure out https
 		self.session = requests.Session()
 
+		atexit.register(self.atexit)
+
 
 	def connect(self):
 		self.call_server('post', 'connect', port=self.local_port)
 
-	# def disconnect  # TODO
+	def disconnect(self):
+		self.call_server('post', 'disconnect', port=self.local_port)
+
+	def atexit(self):
+		try:
+			self.disconnect()
+		except:
+			pass
 
 
 	def call_server(self, method: str, function: str, data=None, **params) -> dict | list:

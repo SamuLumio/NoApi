@@ -27,9 +27,14 @@ class Server:
 			if client not in self.connections:
 				self.connections.add(client)
 				client.connect()
-				return True
-			else:
-				return False
+
+		@self.fastapi.post('/disconnect')
+		def remove_client(port: int, request: fastapi.Request):
+			client = Connection(request.client.host, port, self.port)
+			if client in self.connections:
+				self.connections.remove(client)
+				client.disconnect()
+
 
 		@self.fastapi.get('/test')
 		def hello():
