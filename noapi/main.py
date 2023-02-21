@@ -23,6 +23,10 @@ class Node:
 	def activate(self):
 		self.server.start()
 
+	@property
+	def active(self):
+		return self.server.running
+
 	def deactivate(self):
 		self.server.stop()
 

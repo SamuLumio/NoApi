@@ -17,6 +17,7 @@ class Server:
 		else:
 			log_level = 'warning'
 		self.uvicorn = uvicorn.Server(uvicorn.Config(self.fastapi, host='0.0.0.0', port=self.port, log_level=log_level))
+		self.uvicorn_thread = threading.Thread(target=self.uvicorn.run, daemon=True)
 
 		self.connections: set[Connection] = set()
 
@@ -41,8 +42,11 @@ class Server:
 
 
 	def start(self):
-		uvicorn_thread = threading.Thread(target=self.uvicorn.run, daemon=True)
-		uvicorn_thread.start()
+		self.uvicorn_thread.start()
+
+	@property
+	def running(self):
+		return self.uvicorn.started and self.uvicorn_thread.is_alive()
 
 	def stop(self):
 		self.uvicorn.should_exit = True
