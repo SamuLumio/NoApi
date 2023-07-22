@@ -31,9 +31,7 @@ On another:
 So you can use your remotely running backend just the same as if it was an imported package (here called 'backend')
 
 
-Don't use this yet tho
-----------------------
+Use at your own risk tho
+------------------------
 
-This library is still in active development and not polished, documented, or secure in the slightest. I'm testing how well it works by using it in another project I'm working on, and it's public in this phase only so that It's on PyPi and can easily be used with the other project.
-
-So, use at your own risk!
+This library is not really in active development or secure in the slightest. Also the only documentation is this readme but usage is pretty simple.
